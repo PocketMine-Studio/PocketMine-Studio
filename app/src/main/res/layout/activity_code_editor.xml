@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar"
+        android:fitsSystemWindows="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/editor_toolbar"
+            android:background="?attr/colorSurfaceContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?attr/actionBarSize">
+            <ImageButton
+                android:layout_gravity="start"
+                android:id="@+id/nav_back"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:tint="?attr/colorOnSurface"
+                android:src="@drawable/ic_arrow_back_24px"/>
+            <TextView
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_gravity="center_vertical"
+                android:textColor="?attr/colorOnSurface"
+                android:id="@+id/toolbar_title"
+                android:layout_marginLeft="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/auto_text_editor"/>
+            <ImageButton
+                android:layout_gravity="end"
+                android:id="@+id/moreButton"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8sp"
+                android:visibility="gone"/>
+        </androidx.appcompat.widget.Toolbar>
+            
+        <LinearLayout
+            android:id="@+id/search_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:visibility="gone"
+            android:gravity="center_vertical"
+            android:background="?attr/colorSurface">
+            
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/search_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/auto_hint_find"
+                    android:imeOptions="actionSearch"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+                
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/replace_input_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/replace_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/auto_hint_replace"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+                
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_prev"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_chevron_left_24px"
+                android:contentDescription="Previous" />
+                
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_next"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_chevron_right_24px"
+                android:contentDescription="Next" />
+                
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_replace"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_find_replace_24px"
+                android:contentDescription="Replace" />
+                
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_close_search"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_close_24px"
+                android:contentDescription="Close" />
+        </LinearLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <io.github.rosemoe.sora.widget.CodeEditor
+        android:id="@+id/code_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

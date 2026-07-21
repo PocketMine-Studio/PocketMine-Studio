@@ -1,0 +1,626 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginBottom="@dimen/activity_vertical_margin"
+    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+    android:layout_marginRight="@dimen/activity_horizontal_margin"
+    android:layout_marginTop="@dimen/activity_vertical_margin"
+    android:layout_weight="1" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/config_port" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/config_port"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="number"
+            android:text="19132" >
+
+            <requestFocus />
+        </com.google.android.material.textfield.TextInputEditText>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
+            android:text="@string/config_name" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/config_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="text"
+            android:text="@string/auto_text_minecraft_pe_server" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
+            android:text="@string/config_desc" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/config_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="text"
+            android:text="@string/auto_text_server_made_using_po" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
+            android:text="@string/config_motd" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/config_motd"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="text"
+            android:text="Welcome @player to this server!" />
+
+        
+        <!-- 
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/config_usage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/config_usage" />
+             -->
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/config_query"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/config_query" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/config_achievements"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/config_achievements" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
+            android:text="@string/config_gamemode" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <com.google.android.material.button.MaterialButton
+                style="?attr/materialButtonOutlinedStyle"
+                android:checkable="true"
+                app:cornerRadius="8dp"
+                android:id="@+id/config_creative"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="true"
+                
+                android:text="@string/gamemode_creative"
+                android:layout_marginEnd="12px"
+                
+                 />
+
+            <com.google.android.material.button.MaterialButton
+                style="?attr/materialButtonOutlinedStyle"
+                android:checkable="true"
+                app:cornerRadius="8dp"
+                android:id="@+id/config_survival"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                
+                android:text="@string/gamemode_survival"
+                
+                 />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <com.google.android.material.button.MaterialButton
+                style="?attr/materialButtonOutlinedStyle"
+                android:checkable="true"
+                app:cornerRadius="8dp"
+                android:id="@+id/config_adventure"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                
+                android:text="@string/gamemode_adventure"
+                android:layout_marginEnd="12px"
+                
+                 />
+
+            <com.google.android.material.button.MaterialButton
+                style="?attr/materialButtonOutlinedStyle"
+                android:checkable="true"
+                app:cornerRadius="8dp"
+                android:id="@+id/config_spectator"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                
+                android:text="@string/gamemode_spectator"
+                
+                 />
+        </LinearLayout>
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/config_hardcore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/config_hardcore" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/config_pvp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
+            android:text="@string/config_pvp" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/config_fly"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/config_fly" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
+            android:text="@string/config_difficulty" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <com.google.android.material.button.MaterialButton
+                style="?attr/materialButtonOutlinedStyle"
+                android:checkable="true"
+                app:cornerRadius="8dp"
+                android:id="@+id/config_peaceful"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                
+                android:text="@string/difficulty_peaceful"
+                android:layout_marginEnd="12px"
+                
+                 />
+
+            <com.google.android.material.button.MaterialButton
+                style="?attr/materialButtonOutlinedStyle"
+                android:checkable="true"
+                app:cornerRadius="8dp"
+                android:id="@+id/config_easy"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="true"
+                
+                android:text="@string/difficulty_easy"
+                
+                 />
+        </LinearLayout>
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <com.google.android.material.button.MaterialButton
+                style="?attr/materialButtonOutlinedStyle"
+                android:checkable="true"
+                app:cornerRadius="8dp"
+                android:id="@+id/config_normal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                
+                android:text="@string/difficulty_normal"
+                android:layout_marginEnd="12px"
+                
+                 />
+
+            <com.google.android.material.button.MaterialButton
+                style="?attr/materialButtonOutlinedStyle"
+                android:checkable="true"
+                app:cornerRadius="8dp"
+                android:id="@+id/config_hard"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                
+                android:text="@string/difficulty_hard"
+                
+                 />
+        </LinearLayout>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
+            android:text="@string/config_players" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/config_players"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="number"
+            android:text="20" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
+            android:text="@string/config_spawnprotect" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/config_spawnprotect_enable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:checked="true"
+                android:text="@string/auto_text_enabled" />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/config_spawnprotect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/config_spawnprotect_enable"
+                android:ems="10"
+                android:hint="@string/config_spawnprotect_range"
+                android:inputType="number"
+                android:text="16" />
+        </RelativeLayout>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
+            android:text="@string/config_whitelist" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/config_whitelist"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/title_activity_whitelist" />
+
+            
+        </LinearLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/config_spawn_animals"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/auto_text_spawn_animals" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/config_spawn_mobs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/auto_text_spawn_mobs" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/config_force_gamemode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/auto_text_force_gamemode" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/config_xbox_auth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/auto_text_xbox_auth" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/config_last_update"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/auto_text_last_update" />
+            
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/config_enable_ipv6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/auto_text_enable_ipv6" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
+            android:text="@string/auto_text_ipv6_port" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/config_portv6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="number"
+            android:text="19133" />
+            
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
+            android:text="@string/auto_text_language" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/config_language"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="text"
+            android:text="@string/auto_text_eng" />
+            
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
+            android:text="@string/auto_text_server_type" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/config_server_type"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="text"
+            android:text="@string/auto_text_normal" />
+
+<com.google.android.material.textview.MaterialTextView
+            android:id="@+id/config_advanced_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
+            android:text="@string/config_advanced"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <LinearLayout
+            android:id="@+id/config_advanced_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dip"
+            android:layout_marginTop="10dip"
+            android:orientation="vertical" >
+
+            <!-- 
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/config_ip" />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/config_ip"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:digits="0123456789."
+                android:text="" />
+                 -->
+            
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dip"
+                android:text="@string/config_level_name" />
+            
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/config_level_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text"
+                android:text="@string/auto_text_world" />
+            
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dip"
+                android:text="@string/config_level_seed" />
+            
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/config_level_seed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text"
+                android:text="" />
+            
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dip"
+                android:text="@string/config_level_type" />
+            
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/config_level_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text"
+                android:text="@string/auto_text_default" />
+            
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/config_level_type_info" />
+            
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dip"
+                android:text="@string/conf_generator_setting" />
+            
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/config_generator_settings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text"
+                android:text="" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/config_autosave"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dip"
+                android:text="@string/config_auto_save" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dip"
+                android:text="@string/config_ram" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <com.google.android.material.button.MaterialButton
+                style="?attr/materialButtonOutlinedStyle"
+                android:checkable="true"
+                app:cornerRadius="8dp"
+                    android:id="@+id/config_ram64" android:text="@string/auto_text_64mb"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    
+                    
+                     />
+
+                <com.google.android.material.button.MaterialButton
+                style="?attr/materialButtonOutlinedStyle"
+                android:checkable="true"
+                app:cornerRadius="8dp"
+                    android:id="@+id/config_ram128" android:text="@string/auto_text_128mb"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    
+                    
+                     />
+
+                <com.google.android.material.button.MaterialButton
+                style="?attr/materialButtonOutlinedStyle"
+                android:checkable="true"
+                app:cornerRadius="8dp"
+                    android:id="@+id/config_ram256" android:text="@string/auto_text_256mb"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    
+                    
+                     />
+
+                <com.google.android.material.button.MaterialButton
+                style="?attr/materialButtonOutlinedStyle"
+                android:checkable="true"
+                app:cornerRadius="8dp"
+                    android:id="@+id/config_ramCustom" android:text="@string/auto_text_custom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    
+                    
+                     />
+            </LinearLayout>
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dip"
+                android:text="@string/config_distance" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <SeekBar
+                    android:id="@+id/config_distance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_toLeftOf="@+id/config_distance_value"
+                    android:max="13"
+                    android:progress="10" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/config_distance_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:text="10" />
+            </RelativeLayout>
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/config_distance_warning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/config_distance_warning"
+                android:textColor="#ff00" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/config_rcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dip"
+                android:text="@string/config_rcon" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dip"
+                android:text="@string/config_rcon_password" />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/config_rcon_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+</ScrollView>

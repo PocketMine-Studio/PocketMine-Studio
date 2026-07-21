@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar"
+        android:fitsSystemWindows="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar_top"
+            android:background="?attr/colorSurfaceContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?attr/actionBarSize">
+            <ImageButton
+                android:layout_gravity="start"
+                android:id="@+id/btn_settings"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:tint="?attr/colorOnSurface"
+                android:src="@drawable/ic_more_vert"/>
+            <TextView
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:layout_gravity="center"
+                android:textColor="?attr/colorOnSurface"
+                android:id="@+id/toolbar_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/activity_name"/>
+            <ImageButton
+                android:layout_gravity="end"
+                android:id="@+id/btn_console"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8sp"
+                app:tint="?attr/colorOnSurface"
+                android:src="@drawable/ic_terminal_2_24px"/>
+        </androidx.appcompat.widget.Toolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/app_bar"
+        android:layout_above="@+id/bottom_navigation" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="15dip">
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12px">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/RunTime_Http"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:icon="@drawable/ic_play_circle_24px"
+                    app:iconTint="@color/text"
+                    android:gravity="center"
+                    android:padding="24sp"
+                    android:textSize="18sp"
+                    android:text="@string/server_online"
+                    android:layout_marginEnd="16px"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/RunTime_Http_Kill"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:icon="@drawable/ic_replay_24px"
+                    app:iconTint="@color/text"
+                    android:gravity="center"
+                    android:padding="24sp"
+                    android:textSize="18sp"
+                    android:text="@string/auto_text_restart" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/stats"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:background="@drawable/bg_rounded"
+                android:padding="28px">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/stat_ip"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/stat_ip" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/stat_public_ip"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/auto_text_public_ip_loading" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/stat_online"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/stat_online" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/stat_tps"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/stat_tps" />
+
+                    </LinearLayout>
+                </LinearLayout>
+
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/graph_download"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_marginTop="6dp" />
+
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/graph_upload"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_marginTop="6dp" />
+
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/graph_ram"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_marginTop="6dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dip"
+                android:orientation="vertical"
+                android:padding="28px"
+                android:background="@drawable/bg_rounded">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/auto_text_management"
+                    style="@style/TextAppearance.Material3.HeadlineLarge"
+                    android:gravity="center"
+                    android:layout_marginBottom="12px"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_manage_players"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/server_players"
+                        android:padding="16sp"
+                        android:textSize="16sp"
+                        android:layout_marginEnd="16px"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_manage_whitelist"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16sp"
+                        android:textSize="16sp"
+                        android:layout_weight="1"
+                        android:text="@string/title_activity_whitelist" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_manage_worlds"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/auto_text_worlds"
+                        android:padding="16sp"
+                        android:textSize="16sp"
+                        android:layout_marginEnd="16px"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_manage_plugins"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16sp"
+                        android:textSize="16sp"
+                        android:layout_weight="1"
+                        android:text="@string/title_activity_plugins" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_version_manager"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:text="@string/abs_version_manager"
+                        android:padding="16sp" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_scheduler"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:text="@string/auto_text_event_scheduler"
+                        android:padding="16sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</RelativeLayout>

@@ -1,0 +1,27 @@
+/**
+ * This file is part of DroidPHP
+ *
+ * (c) 2013 Shushant Kumar
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+package net.eqozqq.pocketminestudio;
+
+import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
+import net.eqozqq.pocketminestudio.R;
+
+public class FileManagerActivity extends BaseActivity {
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+
+		//requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.file_manager);
+
+		//
+	}
+}

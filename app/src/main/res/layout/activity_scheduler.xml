@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar"
+            android:fitsSystemWindows="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar_top"
+                android:background="?attr/colorSurfaceContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="?attr/actionBarSize">
+                <ImageButton
+                    android:layout_gravity="start"
+                    android:id="@+id/nav_back"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:padding="8sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:tint="?attr/colorOnSurface"
+                    android:src="@drawable/ic_arrow_back_24px"/>
+                <TextView
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:layout_gravity="center"
+                    android:textColor="?attr/colorOnSurface"
+                    android:id="@+id/toolbar_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/auto_text_event_scheduler"/>
+                <ImageButton
+                    android:layout_gravity="end"
+                    android:id="@+id/moreButton"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:padding="8sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="8sp"
+                    app:tint="?attr/colorOnSurface"
+                    android:src="@drawable/ic_more_vert"
+                    android:visibility="gone"/>
+            </androidx.appcompat.widget.Toolbar>
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <ListView
+            android:id="@+id/list_events"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="8dp"
+            android:padding="8dp"
+            android:clipToPadding="false"/>
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_event"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        app:srcCompat="@drawable/ic_add_24px" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

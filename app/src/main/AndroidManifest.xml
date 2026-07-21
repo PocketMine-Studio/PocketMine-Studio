@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/application_name"
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true"
+        android:extractNativeLibs="true">
+
+        <activity
+            android:name="net.eqozqq.pocketminestudio.HomeActivity"
+            android:exported="true"
+            android:label="@string/application_name"
+            android:theme="@style/AppTheme.NoActionBar" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="net.eqozqq.pocketminestudio.About"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="About PocketMine-MP for Android" >
+        </activity>
+        <activity
+            android:name="net.eqozqq.pocketminestudio.FileManagerActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label="@string/title_activity_file_manager" >
+        </activity>
+        <activity
+            android:name="net.eqozqq.pocketminestudio.VersionManagerActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/title_activity_version_manager" >
+        </activity>
+        <activity
+            android:name="net.eqozqq.pocketminestudio.SettingsActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label="@string/abs_settings" >
+        </activity>
+        <activity
+            android:name="net.eqozqq.pocketminestudio.LogActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label="Console" >
+        </activity>
+        <activity
+            android:name="net.eqozqq.pocketminestudio.ManagePlayersActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label="@string/server_players" >
+        </activity>
+        <activity
+            android:name="net.eqozqq.pocketminestudio.ManageWhitelistActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label="@string/title_activity_whitelist" >
+        </activity>
+        <activity
+            android:name="net.eqozqq.pocketminestudio.ManageGridActivity"
+            android:theme="@style/AppTheme.NoActionBar" >
+        </activity>
+        <activity
+            android:name="net.eqozqq.pocketminestudio.PluginDetailsActivity"
+            android:theme="@style/AppTheme.NoActionBar" >
+        </activity>
+        <activity
+            android:name="net.eqozqq.pocketminestudio.CodeEditorActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="keyboardHidden|orientation|screenSize" >
+        </activity>
+        <activity
+            android:name="net.eqozqq.pocketminestudio.SchedulerActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label="@string/auto_text_event_scheduler" >
+        </activity>
+
+        <service android:name="net.eqozqq.pocketminestudio.ServerService" android:foregroundServiceType="dataSync" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="net.eqozqq.pocketminestudio.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"/>
+        </provider>
+
+    </application>
+
+</manifest>

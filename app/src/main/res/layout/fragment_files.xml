@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="?android:attr/colorBackground">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar"
+        android:fitsSystemWindows="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/files_toolbar"
+            android:background="?attr/colorSurfaceContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?attr/actionBarSize">
+            <ImageButton
+                android:layout_gravity="start"
+                android:id="@+id/nav_back"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:tint="?attr/colorOnSurface"
+                android:src="@drawable/ic_arrow_back_24px"
+                android:visibility="gone"/>
+            <TextView
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:layout_gravity="center"
+                android:textColor="?attr/colorOnSurface"
+                android:id="@+id/toolbar_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/auto_text_files"/>
+            <ImageButton
+                android:layout_gravity="end"
+                android:id="@+id/addButton"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8sp"
+                app:tint="?attr/colorOnSurface"
+                android:src="@drawable/ic_add_2_24px"
+                android:visibility="visible"/>
+            <ImageButton
+                android:layout_gravity="end"
+                android:id="@+id/moreButton"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8sp"
+                app:tint="?attr/colorOnSurface"
+                android:src="@drawable/ic_more_vert"
+                android:visibility="gone"/>
+        </androidx.appcompat.widget.Toolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:id="@+id/files_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp" />
+    </ScrollView>
+    
+    <LinearLayout
+        android:id="@+id/selection_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/bg_selection_bar"
+        android:padding="8dp"
+        android:visibility="gone"
+        android:gravity="center">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_bulk_delete"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/auto_text_delete"
+            app:icon="@android:drawable/ic_menu_delete" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_bulk_copy"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/action_copy"
+            app:icon="@drawable/ic_content_copy_24px" />
+            
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_bulk_archive"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/auto_text_archive"
+            app:icon="@drawable/ic_folder_24px" />
+            
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_clear_selection"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/plugins_error_cancel"
+            app:icon="@drawable/ic_close_24px" />
+    </LinearLayout>
+</LinearLayout>
