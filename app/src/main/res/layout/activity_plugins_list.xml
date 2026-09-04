@@ -58,12 +58,18 @@
             app:icon="@drawable/ic_search_gear_24px" />
     </LinearLayout>
 
-    <ProgressBar
+    <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/loadingBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="20dp" />
+        android:layout_marginTop="20dp"
+        android:indeterminate="true"
+        app:indicatorSize="48dp"
+        app:trackThickness="5dp"
+        app:indicatorColor="?attr/colorPrimary"
+        app:trackColor="?attr/colorSurfaceContainerHigh"
+        app:trackCornerRadius="8dp" />
 
     <ScrollView
         android:id="@+id/scrollView"

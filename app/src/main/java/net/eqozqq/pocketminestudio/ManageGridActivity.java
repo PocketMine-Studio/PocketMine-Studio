@@ -4,17 +4,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import androidx.appcompat.widget.Toolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.File;
@@ -71,6 +68,32 @@ public class ManageGridActivity extends BaseActivity {
         
         navBack.setOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
         if (!targetDir.exists()) targetDir.mkdirs();
+
+        android.widget.ImageButton btnImport = findViewById(R.id.btn_import_plugin);
+        if (btnImport != null) {
+            btnImport.setOnClickListener(v -> {
+                try {
+                    android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_GET_CONTENT);
+                    intent.setType("*/*");
+                    String[] mimeTypes = {
+                        "application/x-phar",
+                        "application/octet-stream",
+                        "application/zip",
+                        "application/x-zip-compressed",
+                        "application/x-tar",
+                        "application/gzip",
+                        "application/x-gzip",
+                        "application/x-gtar",
+                        "application/x-compressed",
+                        "application/x-tgz"
+                    };
+                    intent.putExtra(android.content.Intent.EXTRA_MIME_TYPES, mimeTypes);
+                    startActivityForResult(intent, 2345);
+                } catch (Exception e) {
+                    Toast.makeText(ManageGridActivity.this, getString(R.string.auto_java_no_file_manager), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
 
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
@@ -130,27 +153,109 @@ public class ManageGridActivity extends BaseActivity {
         fileOrDirectory.delete();
     }
 
-    private void showItemMenu(File file) {
-        String[] actions = {getString(R.string.action_rename), getString(R.string.action_delete), getString(R.string.action_archive)};
+    private void showPermissionsDialog(File file) {
         new MaterialAlertDialogBuilder(this)
-                .setTitle(file.getName())
-                .setItems(actions, (dialog, which) -> {
-                    if (which == 0) {
-                        showRenameDialog(file);
-                    } else if (which == 1) {
-                        new MaterialAlertDialogBuilder(this)
-                                .setTitle(getString(R.string.auto_text_delete))
-                                .setMessage(String.format(getString(R.string.msg_delete_confirm), file.getName()))
-                                .setPositiveButton(getString(R.string.btn_delete), (d, w) -> {
-                                    deleteRecursive(file);
-                                    loadFiles();
-                                })
-                                .setNegativeButton(getString(R.string.btn_cancel), null)
-                                .show();
-                    } else if (which == 2) {
-                        showArchiveDialog(file);
-                    }
+                .setTitle(getString(R.string.action_permissions))
+                .setMessage(getString(R.string.dialog_make_executable))
+                .setPositiveButton(getString(R.string.btn_apply), (d, w) -> {
+                    file.setExecutable(true);
+                    Toast.makeText(this, getString(R.string.msg_permission_granted), Toast.LENGTH_SHORT).show();
                 }).show();
+    }
+
+    private void showItemMenu(File file) {
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_file_edit, null);
+        TextView tvFileName = dialogView.findViewById(R.id.toolbar_file_name);
+        if (tvFileName != null) {
+            tvFileName.setText(file.getName());
+        }
+
+        android.app.Dialog dialog = new android.app.Dialog(this);
+        dialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
+        dialog.setContentView(dialogView);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+            dialog.getWindow().setGravity(android.view.Gravity.BOTTOM | android.view.Gravity.CENTER_HORIZONTAL);
+            android.view.WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
+            params.y = (int) (80 * getResources().getDisplayMetrics().density);
+            dialog.getWindow().setAttributes(params);
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            dialog.getWindow().setWindowAnimations(android.R.style.Animation_Dialog);
+        }
+
+        View.OnLongClickListener tooltipListener = v -> {
+            CharSequence desc = v.getContentDescription();
+            if (desc != null && desc.length() > 0) {
+                Toast.makeText(this, desc, Toast.LENGTH_SHORT).show();
+            }
+            return true;
+        };
+
+        View btnCopy = dialogView.findViewById(R.id.btn_action_copy);
+        View btnRename = dialogView.findViewById(R.id.btn_action_rename);
+        View btnPermissions = dialogView.findViewById(R.id.btn_action_permissions);
+        View btnArchive = dialogView.findViewById(R.id.btn_action_archive);
+        View btnDownload = dialogView.findViewById(R.id.btn_action_download);
+        View btnSelect = dialogView.findViewById(R.id.btn_action_select);
+        View btnDelete = dialogView.findViewById(R.id.btn_action_delete);
+
+        View[] buttons = {btnCopy, btnRename, btnPermissions, btnArchive, btnDownload, btnSelect, btnDelete};
+        for (View btn : buttons) {
+            if (btn != null) btn.setOnLongClickListener(tooltipListener);
+        }
+
+        if (btnCopy != null) {
+            btnCopy.setOnClickListener(v -> {
+                dialog.dismiss();
+                Toast.makeText(this, getString(R.string.msg_file_copied), Toast.LENGTH_SHORT).show();
+            });
+        }
+        if (btnRename != null) {
+            btnRename.setOnClickListener(v -> {
+                dialog.dismiss();
+                showRenameDialog(file);
+            });
+        }
+        if (btnPermissions != null) {
+            btnPermissions.setOnClickListener(v -> {
+                dialog.dismiss();
+                showPermissionsDialog(file);
+            });
+        }
+        if (btnArchive != null) {
+            btnArchive.setOnClickListener(v -> {
+                dialog.dismiss();
+                showArchiveDialog(file);
+            });
+        }
+        if (btnDownload != null) {
+            btnDownload.setOnClickListener(v -> {
+                dialog.dismiss();
+                saveFileToDownloads(file);
+            });
+        }
+        if (btnSelect != null) {
+            btnSelect.setOnClickListener(v -> {
+                dialog.dismiss();
+                Toast.makeText(this, file.getName(), Toast.LENGTH_SHORT).show();
+            });
+        }
+        if (btnDelete != null) {
+            btnDelete.setOnClickListener(v -> {
+                dialog.dismiss();
+                new MaterialAlertDialogBuilder(this)
+                        .setTitle(getString(R.string.auto_text_delete))
+                        .setMessage(String.format(getString(R.string.msg_delete_confirm), file.getName()))
+                        .setPositiveButton(getString(R.string.btn_delete), (d, w) -> {
+                            deleteRecursive(file);
+                            loadFiles();
+                        })
+                        .setNegativeButton(getString(R.string.btn_cancel), null)
+                        .show();
+            });
+        }
+
+        dialog.show();
     }
 
     private void showRenameDialog(File file) {
@@ -273,6 +378,171 @@ public class ManageGridActivity extends BaseActivity {
         }
     }
 
+    private String getFileNameFromUri(android.net.Uri uri) {
+        String result = null;
+        if (uri.getScheme() != null && uri.getScheme().equals("content")) {
+            try (android.database.Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME);
+                    if (nameIndex != -1) {
+                        result = cursor.getString(nameIndex);
+                    }
+                }
+            } catch (Exception e) {}
+        }
+        if (result == null) {
+            result = uri.getPath();
+            if (result != null) {
+                int cut = result.lastIndexOf('/');
+                if (cut != -1) {
+                    result = result.substring(cut + 1);
+                }
+            }
+        }
+        if (result == null || result.isEmpty()) {
+            result = "file";
+        }
+        return result;
+    }
+
+    private void extractZip(java.io.InputStream is, File targetDir) throws Exception {
+        java.util.zip.ZipInputStream zis = new java.util.zip.ZipInputStream(is);
+        java.util.zip.ZipEntry entry;
+        while ((entry = zis.getNextEntry()) != null) {
+            File newFile = new File(targetDir, entry.getName());
+            if (entry.isDirectory()) {
+                newFile.mkdirs();
+            } else {
+                newFile.getParentFile().mkdirs();
+                java.io.FileOutputStream fos = new java.io.FileOutputStream(newFile);
+                byte[] buffer = new byte[1024];
+                int len;
+                while ((len = zis.read(buffer)) > 0) {
+                    fos.write(buffer, 0, len);
+                }
+                fos.close();
+            }
+            zis.closeEntry();
+        }
+        zis.close();
+    }
+
+    private void archiveTarGzExtract(java.io.InputStream is, File targetDir) throws Exception {
+        org.apache.commons.compress.archivers.tar.TarArchiveInputStream tin = new org.apache.commons.compress.archivers.tar.TarArchiveInputStream(new org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream(is));
+        org.apache.commons.compress.archivers.tar.TarArchiveEntry entry;
+        while ((entry = tin.getNextTarEntry()) != null) {
+            File newFile = new File(targetDir, entry.getName());
+            if (entry.isDirectory()) {
+                newFile.mkdirs();
+            } else {
+                newFile.getParentFile().mkdirs();
+                java.io.FileOutputStream fos = new java.io.FileOutputStream(newFile);
+                byte[] buffer = new byte[1024];
+                int len;
+                while ((len = tin.read(buffer)) != -1) {
+                    fos.write(buffer, 0, len);
+                }
+                fos.close();
+            }
+        }
+        tin.close();
+    }
+
+    private void archiveTarExtract(java.io.InputStream is, File targetDir) throws Exception {
+        org.apache.commons.compress.archivers.tar.TarArchiveInputStream tin = new org.apache.commons.compress.archivers.tar.TarArchiveInputStream(is);
+        org.apache.commons.compress.archivers.tar.TarArchiveEntry entry;
+        while ((entry = tin.getNextTarEntry()) != null) {
+            File newFile = new File(targetDir, entry.getName());
+            if (entry.isDirectory()) {
+                newFile.mkdirs();
+            } else {
+                newFile.getParentFile().mkdirs();
+                java.io.FileOutputStream fos = new java.io.FileOutputStream(newFile);
+                byte[] buffer = new byte[1024];
+                int len;
+                while ((len = tin.read(buffer)) != -1) {
+                    fos.write(buffer, 0, len);
+                }
+                fos.close();
+            }
+        }
+        tin.close();
+    }
+
+    private void saveFileToDownloads(File file) {
+        try {
+            File downloadsDir = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS);
+            if (!downloadsDir.exists()) {
+                downloadsDir.mkdirs();
+            }
+            File dest = new File(downloadsDir, file.getName());
+            java.io.FileInputStream is = new java.io.FileInputStream(file);
+            java.io.FileOutputStream os = new java.io.FileOutputStream(dest);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = is.read(buffer)) > 0) {
+                os.write(buffer, 0, length);
+            }
+            os.flush();
+            os.close();
+            is.close();
+            Toast.makeText(this, String.format(getString(R.string.msg_file_downloaded), file.getName()), Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, getString(R.string.msg_file_download_failed), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, android.content.Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 2345 && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            android.net.Uri uri = data.getData();
+            try {
+                String fileName = getFileNameFromUri(uri);
+                if (!targetDir.exists()) {
+                    targetDir.mkdirs();
+                }
+
+                String lower = fileName.toLowerCase();
+                if (!lower.endsWith(".phar") && !lower.endsWith(".zip") && !lower.endsWith(".tar.gz") && !lower.endsWith(".tgz") && !lower.endsWith(".tar") && !lower.endsWith(".gz")) {
+                    Toast.makeText(this, getString(R.string.msg_invalid_file_type), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (lower.endsWith(".zip")) {
+                    try (java.io.InputStream is = getContentResolver().openInputStream(uri)) {
+                        extractZip(is, targetDir);
+                    }
+                } else if (lower.endsWith(".tar.gz") || lower.endsWith(".tgz")) {
+                    try (java.io.InputStream is = getContentResolver().openInputStream(uri)) {
+                        archiveTarGzExtract(is, targetDir);
+                    }
+                } else if (lower.endsWith(".tar")) {
+                    try (java.io.InputStream is = getContentResolver().openInputStream(uri)) {
+                        archiveTarExtract(is, targetDir);
+                    }
+                } else {
+                    File destFile = new File(targetDir, fileName);
+                    try (java.io.InputStream is = getContentResolver().openInputStream(uri);
+                         java.io.OutputStream os = new java.io.FileOutputStream(destFile)) {
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        while ((length = is.read(buffer)) > 0) {
+                            os.write(buffer, 0, length);
+                        }
+                    }
+                }
+
+                Toast.makeText(this, String.format(getString(R.string.msg_plugin_imported), fileName), Toast.LENGTH_SHORT).show();
+                loadFiles();
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(this, getString(R.string.msg_failed_to_import_plugin), Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
     private class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> {
         private List<File> files = new ArrayList<>();
 
@@ -302,7 +572,7 @@ public class ManageGridActivity extends BaseActivity {
                     });
                 }).start();
             } else {
-                holder.icon.setImageResource(R.drawable.ic_description_24px);
+                holder.icon.setImageResource(R.drawable.ic_draft_24px);
                 holder.size.setText(formatFileSize(file.length()));
             }
 

@@ -91,13 +91,40 @@ public final class ServerUtils {
 				corePath = getDataDirectory() + "/src/pocketmine/PocketMine.php";
 			} else if (new File(getDataDirectory() + "/PocketMine-MP.phar").exists()) {
 				corePath = getDataDirectory() + "/PocketMine-MP.phar";
+			} else if (new File(getDataDirectory() + "/BetterAltay.phar").exists()) {
+				corePath = getDataDirectory() + "/BetterAltay.phar";
+			} else {
+				File dataDir = new File(getDataDirectory());
+				File[] files = dataDir.listFiles();
+				if (files != null) {
+					for (File file : files) {
+						if (file.isFile() && file.getName().endsWith(".phar")) {
+							corePath = file.getAbsolutePath();
+							break;
+						}
+					}
+				}
 			}
 		}
 
 		String phpDir = mContext.getFilesDir().getAbsolutePath() + "/php";
+		File iniFile = new File(phpDir, "php.ini");
+		File bootstrapFile = new File(phpDir, "bootstrap.php");
+		if (iniFile.exists() && bootstrapFile.exists()) {
+			try {
+				String content = new String(java.nio.file.Files.readAllBytes(iniFile.toPath()), java.nio.charset.StandardCharsets.UTF_8);
+				content = content.replace("auto_prepend_file=bootstrap.php", "auto_prepend_file=" + bootstrapFile.getAbsolutePath());
+				if (!content.contains("include_path")) {
+					content += "\ninclude_path=\".:" + phpDir + "\"\n";
+				}
+				java.nio.file.Files.write(iniFile.toPath(), content.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+			} catch (Exception e) {}
+		}
+
 		String[] serverCmd = {
 			getExecDirectory() + "/libphp.so",
 			"-c", phpDir,
+			"-d", "auto_prepend_file=" + bootstrapFile.getAbsolutePath(),
 			corePath
 		};
 		
@@ -429,17 +456,29 @@ public final class ServerUtils {
 
 	public static boolean checkIfInstalled() {
 		File mPM = new File(getDataDirectory() + "/PocketMine-MP.phar");
-		File mPMPhar = new File(getDataDirectory() + "/PocketMine-MP.phar");
+		File mAltay = new File(getDataDirectory() + "/BetterAltay.phar");
 		File mPMSRC = new File(getDataDirectory() + "/src/pocketmine/PocketMine.php");
+		String customCore = ServerFragment.prefs != null ? ServerFragment.prefs.getString("custom_core_path", null) : null;
+		boolean customExists = customCore != null && new File(customCore).exists();
+
+		boolean anyPhar = false;
+		File dataDir = new File(getDataDirectory());
+		if (dataDir.exists()) {
+			File[] files = dataDir.listFiles();
+			if (files != null) {
+				for (File file : files) {
+					if (file.isFile() && file.getName().endsWith(".phar")) {
+						anyPhar = true;
+						break;
+					}
+				}
+			}
+		}
 
 		int saveVer = ServerFragment.prefs != null ? ServerFragment.prefs.getInt(
 				"filesVersion", 0) : 0;
 
-		// File mMySql = new File(getAppDirectory() + "/mysqld");
-		// File mLighttpd = new File(getAppDirectory() + "/lighttpd");
-		// File mMySqlMon = new File(getAppDirectory() + "/mysql-monitor");
-
-		if ((mPM.exists() || mPMPhar.exists() || mPMSRC.exists()) && saveVer == 6) {
+		if ((mPM.exists() || mAltay.exists() || mPMSRC.exists() || customExists || anyPhar) && saveVer == 6) {
 
 			return true;
 

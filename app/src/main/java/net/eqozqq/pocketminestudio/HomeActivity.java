@@ -21,17 +21,12 @@ public class HomeActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
+        com.google.android.material.navigation.NavigationBarView bottomNav = findViewById(R.id.bottom_navigation);
         bottomNav.setOnItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.nav_plugins) {
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, new PluginsFragment())
-                        .commit();
-                return true;
-            }
-
             Fragment selectedFragment = null;
-            if (item.getItemId() == R.id.nav_server) {
+            if (item.getItemId() == R.id.nav_plugins) {
+                selectedFragment = new PluginsFragment();
+            } else if (item.getItemId() == R.id.nav_server) {
                 selectedFragment = new ServerFragment();
             } else if (item.getItemId() == R.id.nav_files) {
                 selectedFragment = new FilesFragment();
@@ -41,6 +36,7 @@ public class HomeActivity extends BaseActivity {
 
             if (selectedFragment != null) {
                 getSupportFragmentManager().beginTransaction()
+                        .setCustomAnimations(R.anim.m3_activity_open_enter, R.anim.m3_activity_open_exit)
                         .replace(R.id.fragment_container, selectedFragment)
                         .commit();
             }
@@ -87,6 +83,9 @@ public class HomeActivity extends BaseActivity {
             }
             if (ServerFragment.btn_stopServer != null) {
                 ServerFragment.btn_stopServer.setEnabled(false);
+            }
+            if (ServerFragment.btn_stopServer_arrow != null) {
+                ServerFragment.btn_stopServer_arrow.setEnabled(false);
             }
             ServerUtils.stopServer();
             if (ServerFragment.servInt != null) {

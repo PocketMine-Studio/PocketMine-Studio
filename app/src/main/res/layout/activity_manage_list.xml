@@ -47,6 +47,16 @@
                 android:src="@drawable/ic_more_vert"
                 android:visibility="gone"/>
         </androidx.appcompat.widget.Toolbar>
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_layout"
+            style="@style/Widget.App.TabLayout.Pill"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp"
+            android:visibility="gone"
+            app:tabMode="fixed"
+            app:tabGravity="fill" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <com.google.android.material.textfield.TextInputLayout

@@ -43,6 +43,18 @@ public class AssetExtractor {
                     } catch (Exception e) {}
                 }
             }
+            File iniFile = new File(destDir, "php.ini");
+            File bootstrapFile = new File(destDir, "bootstrap.php");
+            if (iniFile.exists() && bootstrapFile.exists()) {
+                try {
+                    String content = new String(java.nio.file.Files.readAllBytes(iniFile.toPath()), java.nio.charset.StandardCharsets.UTF_8);
+                    content = content.replace("auto_prepend_file=bootstrap.php", "auto_prepend_file=" + bootstrapFile.getAbsolutePath());
+                    if (!content.contains("include_path")) {
+                        content += "\ninclude_path=\".:" + destDir.getAbsolutePath() + "\"\n";
+                    }
+                    java.nio.file.Files.write(iniFile.toPath(), content.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                } catch (Exception e) {}
+            }
         }
     }
 

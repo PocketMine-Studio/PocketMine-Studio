@@ -94,6 +94,7 @@ public class ServerFragment extends Fragment {
 	 */
 	public static Button btn_runServer;
 	public static Button btn_stopServer;
+	public static Button btn_stopServer_arrow;
 	public static Intent servInt;
 	public static Boolean isStarted = false;
 
@@ -120,19 +121,21 @@ public class ServerFragment extends Fragment {
 
 		btn_runServer = (Button) view.findViewById(R.id.RunTime_Http);
 		btn_stopServer = (Button) view.findViewById(R.id.RunTime_Http_Kill);
+		btn_stopServer_arrow = (Button) view.findViewById(R.id.RunTime_Http_Kill_Arrow);
 
 		btn_runServer.setEnabled(true);
 		btn_runServer.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if (isStarted) {
-					if (ServerUtils.isRunning()) {
-						btn_runServer.setText(ha.getString(R.string.msg_stopping_btn));
-						btn_runServer.setEnabled(false);
-						btn_stopServer.setEnabled(false);
-						LogActivity.log(ha.getString(R.string.msg_log_stopping_server));
-						ServerUtils.executeCMD("stop");
+					btn_runServer.setText(ha.getString(R.string.msg_stopping_btn));
+					btn_runServer.setEnabled(false);
+					btn_stopServer.setEnabled(false);
+					if (btn_stopServer_arrow != null) {
+						btn_stopServer_arrow.setEnabled(false);
 					}
+					LogActivity.log(ha.getString(R.string.msg_log_stopping_server));
+					ServerUtils.executeCMD("stop");
 				} else {
 					btn_runServer.setEnabled(false);
 					servInt = new Intent(mContext, ServerService.class);
@@ -162,12 +165,45 @@ public class ServerFragment extends Fragment {
 					btn_runServer.setText(ha.getString(R.string.msg_stopping_btn));
 					btn_runServer.setEnabled(false);
 					btn_stopServer.setEnabled(false);
+					if (btn_stopServer_arrow != null) {
+						btn_stopServer_arrow.setEnabled(false);
+					}
 					LogActivity.log(ha.getString(R.string.msg_log_restarting_server));
 					restartRequested = true;
 					ServerUtils.executeCMD("stop");
 				}
 			}
 		});
+
+		if (btn_stopServer_arrow != null) {
+			btn_stopServer_arrow.setEnabled(isStarted);
+			btn_stopServer_arrow.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					LinearLayout dialogLayout = new LinearLayout(mContext);
+					dialogLayout.setOrientation(LinearLayout.VERTICAL);
+					dialogLayout.setPadding(40, 40, 40, 40);
+
+					com.google.android.material.button.MaterialButton btnKill = new com.google.android.material.button.MaterialButton(mContext);
+					btnKill.setText(ha.getString(R.string.abs_force_close));
+					btnKill.setTextSize(16);
+					btnKill.setPadding(30, 30, 30, 30);
+					btnKill.setCornerRadius(40);
+					dialogLayout.addView(btnKill);
+
+					androidx.appcompat.app.AlertDialog dialog = new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireActivity())
+							.setView(dialogLayout)
+							.create();
+
+					btnKill.setOnClickListener(viewBtn -> {
+						dialog.dismiss();
+						ServerUtils.stopServer();
+					});
+
+					dialog.show();
+				}
+			});
+		}
 
 		updateButtonsState();
 
@@ -199,35 +235,50 @@ public class ServerFragment extends Fragment {
             popup.show();
         });
 
-		ha.view.findViewById(R.id.btn_version_manager).setOnClickListener(v -> {
-			startActivity(new android.content.Intent(ha.requireActivity(), VersionManagerActivity.class));
-		});
+		View fabManagement = ha.view.findViewById(R.id.fab_management);
+		if (fabManagement != null) {
+			fabManagement.setOnClickListener(v -> {
+				View dialogView = getLayoutInflater().inflate(R.layout.dialog_management, null);
+				androidx.appcompat.app.AlertDialog dialog = new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireActivity())
+						.setTitle(ha.getString(R.string.auto_text_management))
+						.setView(dialogView)
+						.create();
 
-		ha.view.findViewById(R.id.btn_scheduler).setOnClickListener(v -> {
-			startActivity(new android.content.Intent(ha.requireActivity(), SchedulerActivity.class));
-		});
-		
-        ha.view.findViewById(R.id.btn_manage_players).setOnClickListener(v -> {
-            startActivity(new android.content.Intent(ha.requireActivity(), ManagePlayersActivity.class));
-        });
-        ha.view.findViewById(R.id.btn_manage_whitelist).setOnClickListener(v -> {
-            startActivity(new android.content.Intent(ha.requireActivity(), ManageWhitelistActivity.class));
-        });
-        
-        ha.view.findViewById(R.id.btn_manage_worlds).setOnClickListener(v -> {
-            android.content.Intent intent = new android.content.Intent(ha.requireActivity(), ManageGridActivity.class);
-            intent.putExtra("path", ServerUtils.getDataDirectory() + "/worlds");
-            intent.putExtra("title", "Worlds");
-            startActivity(intent);
-        });
-        
-        ha.view.findViewById(R.id.btn_manage_plugins).setOnClickListener(v -> {
-            android.content.Intent intent = new android.content.Intent(ha.requireActivity(), ManageGridActivity.class);
-            intent.putExtra("path", ServerUtils.getDataDirectory() + "/plugins");
-            intent.putExtra("title", "Plugins");
-            startActivity(intent);
-        });
-return view;
+				dialogView.findViewById(R.id.btn_dialog_players).setOnClickListener(viewBtn -> {
+					dialog.dismiss();
+					startActivity(new android.content.Intent(mContext, ManagePlayersActivity.class));
+				});
+				dialogView.findViewById(R.id.btn_dialog_whitelist).setOnClickListener(viewBtn -> {
+					dialog.dismiss();
+					startActivity(new android.content.Intent(mContext, ManageWhitelistActivity.class));
+				});
+				dialogView.findViewById(R.id.btn_dialog_worlds).setOnClickListener(viewBtn -> {
+					dialog.dismiss();
+					android.content.Intent intent = new android.content.Intent(mContext, ManageGridActivity.class);
+					intent.putExtra("path", ServerUtils.getDataDirectory() + "/worlds");
+					intent.putExtra("title", "Worlds");
+					startActivity(intent);
+				});
+				dialogView.findViewById(R.id.btn_dialog_plugins).setOnClickListener(viewBtn -> {
+					dialog.dismiss();
+					android.content.Intent intent = new android.content.Intent(mContext, ManageGridActivity.class);
+					intent.putExtra("path", ServerUtils.getDataDirectory() + "/plugins");
+					intent.putExtra("title", "Plugins");
+					startActivity(intent);
+				});
+				dialogView.findViewById(R.id.btn_dialog_version_manager).setOnClickListener(viewBtn -> {
+					dialog.dismiss();
+					startActivity(new android.content.Intent(mContext, VersionManagerActivity.class));
+				});
+				dialogView.findViewById(R.id.btn_dialog_scheduler).setOnClickListener(viewBtn -> {
+					dialog.dismiss();
+					startActivity(new android.content.Intent(mContext, SchedulerActivity.class));
+				});
+
+				dialog.show();
+			});
+		}
+		return view;
 	}
 
 	public static void updateButtonsState() {
@@ -245,6 +296,9 @@ return view;
 				}
 				if (btn_stopServer != null) {
 					btn_stopServer.setEnabled(isStarted);
+				}
+				if (btn_stopServer_arrow != null) {
+					btn_stopServer_arrow.setEnabled(isStarted);
 				}
 			});
 		}

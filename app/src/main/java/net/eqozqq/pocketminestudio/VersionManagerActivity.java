@@ -11,8 +11,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
@@ -22,32 +20,29 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
-import android.os.Build;
 import android.view.KeyEvent;
-import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.ScrollView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.material.tabs.TabLayout;
 
 public class VersionManagerActivity extends BaseActivity {
+    private java.util.List<JSONObject> pmVersions = new java.util.ArrayList<>();
+    private java.util.List<JSONObject> altayVersions = new java.util.ArrayList<>();
     private java.util.List<JSONObject> allVersions = new java.util.ArrayList<>();
     private java.util.List<JSONObject> filteredVersions = new java.util.ArrayList<>();
+    private int selectedTab = 0;
     private int currentPage = 1;
     private int itemsPerPage = 20;
     private String searchQuery = "";
-
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -70,9 +65,7 @@ public class VersionManagerActivity extends BaseActivity {
 	}
 
 	private void start() {
-		final android.widget.ProgressBar pbar = findViewById(R.id.loadingBar);
-		final android.widget.ScrollView scrollView = findViewById(R.id.scrollView);
-		final android.widget.Button skip = findViewById(R.id.skipBtn);
+		final Button skip = findViewById(R.id.skipBtn);
 		
 		skip.setOnClickListener(v -> finish());
 		
@@ -102,51 +95,163 @@ public class VersionManagerActivity extends BaseActivity {
 			}
 		});
 
-		pbar.setVisibility(android.view.View.VISIBLE);
-		scrollView.setVisibility(android.view.View.GONE);
-		skip.setVisibility(android.view.View.GONE);
-
-		new Thread(() -> {
-			try {
-				String jsonString = getPageContext("https://api.github.com/repos/pmmp/pocketmine-mp/releases?per_page=100");
-				final org.json.simple.JSONArray versionsArray = (org.json.simple.JSONArray) org.json.simple.JSONValue.parse(jsonString);
-				
-				if (versionsArray != null) {
-					for (int i = 0; i < versionsArray.size(); i++) {
-						allVersions.add((org.json.simple.JSONObject) versionsArray.get(i));
-					}
+		TabLayout tabLayout = findViewById(R.id.tab_layout);
+		if (tabLayout != null) {
+			tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+				@Override
+				public void onTabSelected(TabLayout.Tab tab) {
+					selectedTab = tab.getPosition();
+					currentPage = 1;
+					loadTabVersions(selectedTab);
 				}
-				
-				runOnUiThread(() -> {
-					filterVersions();
-					renderVersions();
-					pbar.setVisibility(android.view.View.GONE);
-					scrollView.setVisibility(android.view.View.VISIBLE);
-					skip.setVisibility(ServerUtils.checkIfInstalled() ? android.view.View.VISIBLE : android.view.View.GONE);
-				});
-			} catch (Exception err) {
-				err.printStackTrace();
-				showToast("Cannot load version list. Retrying in 5 seconds...");
-				try { Thread.sleep(5000); } catch (InterruptedException e) {}
-				start();
-			}
-		}).start();
 
-		android.widget.Button btnImport = findViewById(R.id.importCustomCoreBtn);
+				@Override
+				public void onTabUnselected(TabLayout.Tab tab) {}
+
+				@Override
+				public void onTabReselected(TabLayout.Tab tab) {}
+			});
+		}
+
+		loadTabVersions(selectedTab);
+
+		Button btnImport = findViewById(R.id.importCustomCoreBtn);
 		if (btnImport != null) {
 			btnImport.setOnClickListener(v -> {
 				try {
-					android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_GET_CONTENT);
+					Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 					intent.setType("*/*");
 					startActivityForResult(intent, 1234);
 				} catch (Exception e) {
-					android.widget.Toast.makeText(VersionManagerActivity.this, getString(R.string.auto_java_no_file_manager), android.widget.Toast.LENGTH_SHORT).show();
+					Toast.makeText(VersionManagerActivity.this, getString(R.string.auto_java_no_file_manager), Toast.LENGTH_SHORT).show();
 				}
 			});
 		}
 	}
 
-	private void downloadVersion(final String pharUrl, final String shUrl, final String versionName) {
+	private String getFileNameFromUri(android.net.Uri uri) {
+		String result = null;
+		if (uri.getScheme() != null && uri.getScheme().equals("content")) {
+			try (android.database.Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+				if (cursor != null && cursor.moveToFirst()) {
+					int nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME);
+					if (nameIndex != -1) {
+						result = cursor.getString(nameIndex);
+					}
+				}
+			} catch (Exception e) {}
+		}
+		if (result == null) {
+			result = uri.getPath();
+			if (result != null) {
+				int cut = result.lastIndexOf('/');
+				if (cut != -1) {
+					result = result.substring(cut + 1);
+				}
+			}
+		}
+		if (result == null || result.isEmpty() || !result.endsWith(".phar")) {
+			result = "CustomCore.phar";
+		}
+		return result;
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == 1234 && resultCode == RESULT_OK && data != null && data.getData() != null) {
+			android.net.Uri uri = data.getData();
+			try {
+				String fileName = getFileNameFromUri(uri);
+				File destFile = new File(ServerUtils.getDataDirectory() + "/" + fileName);
+
+				new File(ServerUtils.getDataDirectory() + "/PocketMine-MP.phar").delete();
+				new File(ServerUtils.getDataDirectory() + "/BetterAltay.phar").delete();
+
+				InputStream is = getContentResolver().openInputStream(uri);
+				OutputStream os = new FileOutputStream(destFile);
+				byte[] buffer = new byte[1024];
+				int length;
+				while ((length = is.read(buffer)) > 0) {
+					os.write(buffer, 0, length);
+				}
+				os.flush();
+				os.close();
+				is.close();
+
+				if (ServerFragment.prefs != null) {
+					ServerFragment.prefs.edit().putString("custom_core_path", destFile.getAbsolutePath()).apply();
+				}
+
+				showToast(String.format(getString(R.string.msg_custom_phar_imported), fileName));
+				Intent intent = new Intent(VersionManagerActivity.this, HomeActivity.class);
+				startActivity(intent);
+				finish();
+			} catch (Exception e) {
+				e.printStackTrace();
+				showToast(getString(R.string.msg_failed_to_import_phar));
+			}
+		}
+	}
+
+	private void loadTabVersions(final int tabIndex) {
+		final ProgressBar pbar = findViewById(R.id.loadingBar);
+		final ScrollView scrollView = findViewById(R.id.scrollView);
+		final Button skip = findViewById(R.id.skipBtn);
+
+		java.util.List<JSONObject> cached = (tabIndex == 0) ? pmVersions : altayVersions;
+		if (!cached.isEmpty()) {
+			allVersions = cached;
+			filterVersions();
+			renderVersions();
+			pbar.setVisibility(View.GONE);
+			scrollView.setVisibility(View.VISIBLE);
+			skip.setVisibility(ServerUtils.checkIfInstalled() ? View.VISIBLE : View.GONE);
+			return;
+		}
+
+		pbar.setVisibility(View.VISIBLE);
+		scrollView.setVisibility(View.GONE);
+		skip.setVisibility(View.GONE);
+
+		new Thread(() -> {
+			try {
+				String apiUrl = (tabIndex == 0)
+						? "https://api.github.com/repos/pmmp/pocketmine-mp/releases?per_page=100"
+						: "https://api.github.com/repos/Benedikt05/BetterAltay/releases?per_page=100";
+				String jsonString = getPageContext(apiUrl);
+				final JSONArray versionsArray = (JSONArray) JSONValue.parse(jsonString);
+
+				final java.util.List<JSONObject> targetList = (tabIndex == 0) ? pmVersions : altayVersions;
+				targetList.clear();
+				if (versionsArray != null) {
+					for (int i = 0; i < versionsArray.size(); i++) {
+						targetList.add((JSONObject) versionsArray.get(i));
+					}
+				}
+
+				runOnUiThread(() -> {
+					if (selectedTab == tabIndex) {
+						allVersions = targetList;
+						filterVersions();
+						renderVersions();
+						pbar.setVisibility(View.GONE);
+						scrollView.setVisibility(View.VISIBLE);
+						skip.setVisibility(ServerUtils.checkIfInstalled() ? View.VISIBLE : View.GONE);
+					}
+				});
+			} catch (Exception err) {
+				err.printStackTrace();
+				showToast("Cannot load version list. Retrying in 5 seconds...");
+				try { Thread.sleep(5000); } catch (InterruptedException e) {}
+				if (selectedTab == tabIndex) {
+					loadTabVersions(tabIndex);
+				}
+			}
+		}).start();
+	}
+
+	private void downloadVersion(final String pharUrl, final String shUrl, final String versionName, final String pharName) {
 		File vdir = new File(ServerUtils.getDataDirectory() + "/versions/");
 		if(!vdir.exists()){
 			vdir.mkdirs();
@@ -178,7 +283,7 @@ public class VersionManagerActivity extends BaseActivity {
 			
 			new Thread(() -> {
 				try {
-					File pharFile = new File(ServerUtils.getDataDirectory() + "/versions/PocketMine-MP.phar");
+					File pharFile = new File(ServerUtils.getDataDirectory() + "/versions/" + pharName);
 					downloadFile(pharUrl, pharFile, pBar, tvPct);
 					File shFile = new File(ServerUtils.getDataDirectory() + "/versions/start.sh");
 					downloadFile(shUrl, shFile, pBar, tvPct);
@@ -186,7 +291,7 @@ public class VersionManagerActivity extends BaseActivity {
 					downloadFile(phpUrl, phpFile, pBar, tvPct);
 					
 					dlDialog.dismiss();
-					install(pharFile, shFile, phpFile);
+					install(pharFile, shFile, phpFile, pharName);
 				} catch (Exception e) {
 					e.printStackTrace();
 					showToast("Failed to download.");
@@ -230,7 +335,7 @@ public class VersionManagerActivity extends BaseActivity {
 		input.close();
 	}
 
-	private void install(final File pharFile, final File shFile, final File phpFile) {
+	private void install(final File pharFile, final File shFile, final File phpFile, final String pharName) {
 		final VersionManagerActivity ctx = this;
 		runOnUiThread(() -> {
 			View dialogView = getLayoutInflater().inflate(R.layout.dialog_progress, null);
@@ -245,12 +350,16 @@ public class VersionManagerActivity extends BaseActivity {
 
 			new Thread(() -> {
 				try {
+					if (ServerFragment.prefs != null) {
+						ServerFragment.prefs.edit().remove("custom_core_path").apply();
+					}
 					delete(new File(ServerUtils.getDataDirectory() + "/src/"));
 					delete(new File(ServerUtils.getAppDirectory() + "/php/"));
 					new File(ServerUtils.getDataDirectory() + "/PocketMine-MP.phar").delete();
+					new File(ServerUtils.getDataDirectory() + "/BetterAltay.phar").delete();
 					new File(ServerUtils.getDataDirectory() + "/start.sh").delete();
 					
-					copyFile(pharFile, new File(ServerUtils.getDataDirectory() + "/PocketMine-MP.phar"));
+					copyFile(pharFile, new File(ServerUtils.getDataDirectory() + "/" + pharName));
 					copyFile(shFile, new File(ServerUtils.getDataDirectory() + "/start.sh"));
 					new File(ServerUtils.getDataDirectory() + "/start.sh").setExecutable(true);
 					
@@ -335,6 +444,24 @@ public class VersionManagerActivity extends BaseActivity {
 		}
 		return super.onKeyDown(keyCode, event);
 	}
+
+	private String markdownToHtml(String md) {
+		if (md == null) return "";
+		String html = md.replace("\r\n", "\n");
+		html = html.replaceAll("```[a-zA-Z]*\\n([\\s\\S]*?)```", "<pre><code>$1</code></pre>");
+		html = html.replaceAll("`([^`]+)`", "<code>$1</code>");
+		html = html.replaceAll("(?m)^### (.*)$", "<h3>$1</h3>");
+		html = html.replaceAll("(?m)^## (.*)$", "<h2>$1</h2>");
+		html = html.replaceAll("(?m)^# (.*)$", "<h1>$1</h1>");
+		html = html.replaceAll("\\*\\*([^*]+)\\*\\*", "<b>$1</b>");
+		html = html.replaceAll("__([^_]+)__", "<b>$1</b>");
+		html = html.replaceAll("\\*([^*]+)\\*", "<i>$1</i>");
+		html = html.replaceAll("\\[([^\\]]+)\\]\\(([^\\)]+)\\)", "<a href=\"$2\">$1</a>");
+		html = html.replaceAll("(?m)^[\\*\\-] (.*)$", "&bull; $1");
+		html = html.replace("\n", "<br>");
+		return html;
+	}
+
 	private void filterVersions() {
 		filteredVersions.clear();
 		for (JSONObject obj : allVersions) {
@@ -355,6 +482,8 @@ public class VersionManagerActivity extends BaseActivity {
 		
 		int startIdx = (currentPage - 1) * itemsPerPage;
 		int endIdx = Math.min(startIdx + itemsPerPage, filteredVersions.size());
+
+		final String currentPharName = (selectedTab == 1) ? "BetterAltay.phar" : "PocketMine-MP.phar";
 		
 		for (int i = startIdx; i < endIdx; i++) {
 			JSONObject obj = filteredVersions.get(i);
@@ -368,17 +497,37 @@ public class VersionManagerActivity extends BaseActivity {
 					JSONObject asset = (JSONObject) assets.get(j);
 					String assetName = (String) asset.get("name");
 					if (assetName != null) {
-						if (assetName.equals("PocketMine-MP.phar")) {
-							pharUrl = (String) asset.get("browser_download_url");
-						} else if (assetName.equals("start.sh")) {
-							shUrl = (String) asset.get("browser_download_url");
+						if (selectedTab == 1) {
+							if (assetName.equals("BetterAltay.phar") || assetName.endsWith(".phar")) {
+								pharUrl = (String) asset.get("browser_download_url");
+							} else if (assetName.equals("start.sh")) {
+								shUrl = (String) asset.get("browser_download_url");
+							}
+						} else {
+							if (assetName.equals("PocketMine-MP.phar")) {
+								pharUrl = (String) asset.get("browser_download_url");
+							} else if (assetName.equals("start.sh")) {
+								shUrl = (String) asset.get("browser_download_url");
+							}
 						}
 					}
 				}
 			}
 			
-			if (shUrl.isEmpty() && !pharUrl.isEmpty()) {
-				shUrl = "https://github.com/pmmp/pocketmine-mp/releases/download/" + version + "/start.sh";
+			if (pharUrl.isEmpty()) {
+				if (selectedTab == 1) {
+					pharUrl = "https://github.com/Benedikt05/BetterAltay/releases/download/" + version + "/BetterAltay.phar";
+				} else {
+					pharUrl = "https://github.com/pmmp/pocketmine-mp/releases/download/" + version + "/PocketMine-MP.phar";
+				}
+			}
+
+			if (shUrl.isEmpty()) {
+				if (selectedTab == 1) {
+					shUrl = "https://github.com/pmmp/pocketmine-mp/releases/download/5.0.0/start.sh";
+				} else {
+					shUrl = "https://github.com/pmmp/pocketmine-mp/releases/download/" + version + "/start.sh";
+				}
 			}
 			
 			final String fPharUrl = pharUrl;
@@ -387,7 +536,7 @@ public class VersionManagerActivity extends BaseActivity {
 			String name = (String) obj.get("name");
 			String body = (String) obj.get("body");
 			String mcVersion = "";
-			if (body != null) {
+			if (selectedTab == 0 && body != null) {
 				String[] lines = body.split("\\n");
 				for (String l : lines) {
 					if (l.contains("For Minecraft:")) {
@@ -415,13 +564,26 @@ public class VersionManagerActivity extends BaseActivity {
 			tvName.setTextColor(getResources().getColor(typedValue.resourceId));
 			itemLayout.addView(tvName);
 			
-			if (!mcVersion.isEmpty()) {
+			if (selectedTab == 0 && !mcVersion.isEmpty()) {
 				TextView tvMc = new TextView(VersionManagerActivity.this);
 				tvMc.setText(mcVersion);
 				tvMc.setTextSize(14);
 				tvMc.setTextColor(android.graphics.Color.GRAY);
 				tvMc.setPadding(0, 10, 0, 20);
 				itemLayout.addView(tvMc);
+			} else if (selectedTab == 1 && body != null && !body.trim().isEmpty()) {
+				TextView tvBody = new TextView(VersionManagerActivity.this);
+				String html = markdownToHtml(body.trim());
+				if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+					tvBody.setText(android.text.Html.fromHtml(html, android.text.Html.FROM_HTML_MODE_LEGACY));
+				} else {
+					tvBody.setText(android.text.Html.fromHtml(html));
+				}
+				tvBody.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
+				tvBody.setTextSize(14);
+				tvBody.setTextColor(android.graphics.Color.GRAY);
+				tvBody.setPadding(0, 10, 0, 20);
+				itemLayout.addView(tvBody);
 			}
 			
 			itemLayout.setClickable(true);
@@ -434,7 +596,7 @@ public class VersionManagerActivity extends BaseActivity {
 				new com.google.android.material.dialog.MaterialAlertDialogBuilder(VersionManagerActivity.this)
 						.setTitle("Install " + finalName)
 						.setMessage(getString(R.string.auto_java_are_you_sure_you_want_to_insta))
-						.setPositiveButton("Install", (dialog, which) -> downloadVersion(fPharUrl, fShUrl, version))
+						.setPositiveButton("Install", (dialog, which) -> downloadVersion(fPharUrl, fShUrl, version, currentPharName))
 						.setNegativeButton("Cancel", null)
 						.show();
 			});

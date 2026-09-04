@@ -64,7 +64,7 @@ public class PluginDetailsActivity extends BaseActivity {
         toolbarTitle.setText(name);
         findViewById(R.id.nav_back).setOnClickListener(v -> finish());
         
-        toolbar.getMenu().add(0, R.id.action_share, 0, "Share").setIcon(R.drawable.ic_share_24px).setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        toolbar.getMenu().add(0, R.id.action_share, 0, "Open in browser").setIcon(R.drawable.ic_open_in_new_24px).setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_IF_ROOM);
         toolbar.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.action_share) {
                 String url = "https://poggit.pmmp.io/p/" + name;
@@ -79,7 +79,7 @@ public class PluginDetailsActivity extends BaseActivity {
         tvAuthor.setText("by " + (author != null ? author : "Unknown"));
 
         if (iconUrl != null && !iconUrl.isEmpty()) {
-            Glide.with(this).load(iconUrl).placeholder(R.drawable.ic_launcher).into(ivIcon);
+            Glide.with(this).load(iconUrl).placeholder(R.drawable.ic_extension_24px_fill).into(ivIcon);
         }
 
         webDesc.setBackgroundColor(Color.TRANSPARENT);

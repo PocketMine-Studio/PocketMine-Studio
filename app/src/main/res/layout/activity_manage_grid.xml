@@ -37,6 +37,16 @@
                 android:text="@string/auto_text_manager"/>
             <ImageButton
                 android:layout_gravity="end"
+                android:id="@+id/btn_import_plugin"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8sp"
+                app:tint="?attr/colorOnSurface"
+                android:src="@drawable/ic_add_24px"/>
+            <ImageButton
+                android:layout_gravity="end"
                 android:id="@+id/moreButton"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:padding="8sp"

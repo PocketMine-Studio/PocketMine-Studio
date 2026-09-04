@@ -5,17 +5,20 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +27,11 @@ public class ManagePlayersActivity extends BaseActivity {
 
     private LinearLayout listContainer;
     private List<String> allPlayers = new ArrayList<>();
+    private List<String> whitelistedPlayers = new ArrayList<>();
     private String searchQuery = "";
+    private int currentTab = 0;
+    private FloatingActionButton fabAdd;
+    private TextView toolbarTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,13 +39,30 @@ public class ManagePlayersActivity extends BaseActivity {
         setContentView(R.layout.activity_manage_list);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        ((android.widget.TextView) findViewById(R.id.toolbar_title)).setText(getString(R.string.auto_java_manage_players));
+        toolbarTitle = findViewById(R.id.toolbar_title);
+        toolbarTitle.setText(getString(R.string.server_players));
         findViewById(R.id.nav_back).setOnClickListener(v -> finish());
-        
-        
 
         listContainer = findViewById(R.id.list_container);
         TextInputEditText searchInput = findViewById(R.id.search_input);
+        fabAdd = findViewById(R.id.fab_add);
+
+        TabLayout tabLayout = findViewById(R.id.tab_layout);
+        if (tabLayout != null) {
+            tabLayout.setVisibility(View.VISIBLE);
+            tabLayout.addTab(tabLayout.newTab().setText(R.string.server_players));
+            tabLayout.addTab(tabLayout.newTab().setText(R.string.title_activity_whitelist));
+
+            tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+                @Override
+                public void onTabSelected(TabLayout.Tab tab) {
+                    currentTab = tab.getPosition();
+                    switchTab(currentTab);
+                }
+                @Override public void onTabUnselected(TabLayout.Tab tab) {}
+                @Override public void onTabReselected(TabLayout.Tab tab) {}
+            });
+        }
 
         searchInput.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -49,7 +73,28 @@ public class ManagePlayersActivity extends BaseActivity {
             }
         });
 
-        loadPlayers();
+        fabAdd.setOnClickListener(v -> showAddWhitelistDialog());
+
+        int initialTab = getIntent().getIntExtra("selected_tab", 0);
+        if (tabLayout != null && initialTab != 0) {
+            TabLayout.Tab tab = tabLayout.getTabAt(initialTab);
+            if (tab != null) tab.select();
+        } else {
+            switchTab(0);
+        }
+    }
+
+    private void switchTab(int tabPosition) {
+        currentTab = tabPosition;
+        if (currentTab == 0) {
+            toolbarTitle.setText(getString(R.string.auto_java_manage_players));
+            fabAdd.setVisibility(View.GONE);
+            loadPlayers();
+        } else {
+            toolbarTitle.setText(getString(R.string.auto_java_manage_whitelist));
+            fabAdd.setVisibility(View.VISIBLE);
+            loadWhitelist();
+        }
     }
 
     private void loadPlayers() {
@@ -62,9 +107,7 @@ public class ManagePlayersActivity extends BaseActivity {
                     for (File f : files) {
                         String name = f.getName();
                         int lastDot = name.lastIndexOf('.');
-                        if (lastDot > 0) {
-                            name = name.substring(0, lastDot);
-                        }
+                        if (lastDot > 0) name = name.substring(0, lastDot);
                         allPlayers.add(name);
                     }
                 }
@@ -85,6 +128,26 @@ public class ManagePlayersActivity extends BaseActivity {
         renderList();
     }
 
+    private void loadWhitelist() {
+        whitelistedPlayers.clear();
+        try {
+            File whitelistFile = new File(ServerUtils.getDataDirectory() + "/white-list.txt");
+            if (whitelistFile.exists()) {
+                BufferedReader br = new BufferedReader(new FileReader(whitelistFile));
+                String line;
+                while ((line = br.readLine()) != null) {
+                    if (!line.trim().isEmpty() && !line.startsWith("#")) {
+                        whitelistedPlayers.add(line.trim());
+                    }
+                }
+                br.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        renderList();
+    }
+
     private boolean isOnline(String player) {
         if (ServerFragment.players == null) return false;
         for (String p : ServerFragment.players) {
@@ -96,7 +159,14 @@ public class ManagePlayersActivity extends BaseActivity {
 
     private void renderList() {
         listContainer.removeAllViews();
-        
+        if (currentTab == 0) {
+            renderPlayersList();
+        } else {
+            renderWhitelistList();
+        }
+    }
+
+    private void renderPlayersList() {
         List<String> sorted = new ArrayList<>(allPlayers);
         Collections.sort(sorted, (p1, p2) -> {
             boolean o1 = isOnline(p1);
@@ -209,13 +279,105 @@ public class ManagePlayersActivity extends BaseActivity {
             listContainer.addView(item);
         }
     }
-    
+
+    private void renderWhitelistList() {
+        for (String player : whitelistedPlayers) {
+            if (!searchQuery.isEmpty() && !player.toLowerCase().contains(searchQuery)) {
+                continue;
+            }
+
+            LinearLayout item = new LinearLayout(this);
+            item.setOrientation(LinearLayout.HORIZONTAL);
+            item.setPadding(40, 40, 40, 40);
+            item.setBackgroundResource(R.drawable.bg_rounded);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            params.setMargins(0, 0, 0, 20);
+            item.setLayoutParams(params);
+            item.setClickable(true);
+
+            TextView tv = new TextView(this);
+            tv.setText(player);
+            tv.setTextSize(18);
+            tv.setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Medium);
+            item.addView(tv);
+
+            item.setOnClickListener(v -> {
+                new MaterialAlertDialogBuilder(this)
+                        .setTitle(getString(R.string.auto_java_whitelist_actions))
+                        .setItems(new CharSequence[]{getString(R.string.whitelist_remove_action)}, (dialog, which) -> {
+                            if (which == 0) {
+                                if (ServerUtils.isRunning()) {
+                                    ServerUtils.executeCMD("whitelist remove \"" + player + "\"");
+                                    Toast.makeText(this, "Command sent to remove " + player, Toast.LENGTH_SHORT).show();
+                                    listContainer.removeView(item);
+                                } else {
+                                    try {
+                                        whitelistedPlayers.remove(player);
+                                        File whitelistFile = new File(ServerUtils.getDataDirectory() + "/white-list.txt");
+                                        FileWriter fw = new FileWriter(whitelistFile, false);
+                                        for (String p : whitelistedPlayers) {
+                                            fw.write(p + "\n");
+                                        }
+                                        fw.close();
+                                        Toast.makeText(this, "Removed " + player + " from white-list.txt", Toast.LENGTH_SHORT).show();
+                                        listContainer.removeView(item);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                        Toast.makeText(this, getString(R.string.auto_java_failed_to_remove_player_offlin), Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            }
+                        })
+                        .show();
+            });
+
+            listContainer.addView(item);
+        }
+    }
+
+    private void showAddWhitelistDialog() {
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_input, null);
+        TextInputLayout til = dialogView.findViewById(R.id.dialog_til);
+        til.setHint(getString(R.string.input_player_name_hint));
+        TextInputEditText input = dialogView.findViewById(R.id.dialog_input);
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(getString(R.string.auto_java_add_to_whitelist))
+                .setView(dialogView)
+                .setPositiveButton(getString(R.string.btn_add), (dialog, which) -> {
+                    String name = input.getText().toString().trim();
+                    if (!name.isEmpty()) {
+                        if (ServerUtils.isRunning()) {
+                            ServerUtils.executeCMD("whitelist add \"" + name + "\"");
+                            Toast.makeText(this, "Added " + name + " to whitelist.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            try {
+                                File whitelistFile = new File(ServerUtils.getDataDirectory() + "/white-list.txt");
+                                FileWriter fw = new FileWriter(whitelistFile, true);
+                                fw.write("\n" + name);
+                                fw.close();
+                                Toast.makeText(this, "Added " + name + " to white-list.txt", Toast.LENGTH_SHORT).show();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                Toast.makeText(this, getString(R.string.auto_java_failed_to_write_to_file), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        if (!whitelistedPlayers.contains(name.toLowerCase()) && !whitelistedPlayers.contains(name)) {
+                            whitelistedPlayers.add(name);
+                            renderList();
+                        }
+                    }
+                })
+                .setNegativeButton(getString(R.string.btn_cancel), null)
+                .show();
+    }
+
     private void showReasonDialog(String title, java.util.function.Consumer<String> onConfirm) {
-        android.view.View dialogView = getLayoutInflater().inflate(R.layout.dialog_input, null);
-        com.google.android.material.textfield.TextInputLayout til = dialogView.findViewById(R.id.dialog_til);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_input, null);
+        TextInputLayout til = dialogView.findViewById(R.id.dialog_til);
         til.setHint("Reason (leave empty for unban)");
-        com.google.android.material.textfield.TextInputEditText input = dialogView.findViewById(R.id.dialog_input);
-        
+        TextInputEditText input = dialogView.findViewById(R.id.dialog_input);
+
         new MaterialAlertDialogBuilder(this)
             .setTitle(title)
             .setView(dialogView)

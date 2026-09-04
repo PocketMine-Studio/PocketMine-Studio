@@ -130,7 +130,7 @@
     <string name="action_clear">Очистить</string>
     <string name="msg_console_copied">Текст консоли скопирован в буфер обмена.</string>
     <string name="hint_command">Команда</string>
-    <string name="auto_text_import_custom_core">Импортировать своё ядро</string>
+    <string name="auto_text_import_custom_core">Импортировать свой PHAR</string>
     <string name="auto_hint_search_versions">Поиск версий</string>
     <string name="auto_text_restart">Перезапустить</string>
     <string name="auto_text_public_ip_loading">Публичный IP: Загрузка...</string>
@@ -212,7 +212,18 @@
     <string name="msg_failed_to_load_plugins">Не удалось загрузить плагины.</string>
     <string name="msg_no_download_url">Ссылка для скачивания недоступна.</string>
     <string name="msg_plugin_downloaded">Плагин успешно скачан.</string>
+    <string name="category_all">Все</string>
+    <string name="unit_plugins">плагинов</string>
+    <string name="msg_plugin_imported">Плагин импортирован: %s</string>
+    <string name="msg_failed_to_import_plugin">Не удалось импортировать плагин</string>
+    <string name="msg_custom_phar_imported">Импортирован %s</string>
+    <string name="msg_failed_to_import_phar">Не удалось импортировать кастомный PHAR</string>
     <string name="msg_download_failed">Ошибка загрузки.</string>
+    <string name="action_download">Скачать</string>
+    <string name="msg_file_downloaded">Файл %s сохранен в Загрузки</string>
+    <string name="msg_file_download_failed">Не удалось скачать файл</string>
+    <string name="msg_invalid_file_type">Разрешены только файлы .phar и архивы</string>
+    <string name="msg_file_copied">Файл скопирован</string>
     <string name="auto_java_start_the_server_to_perform_ac">Запустите сервер для выполнения действий.</string>
     <string name="auto_java_player_is_not_online">Игрок не в сети.</string>
     <string name="auto_java_confirm_op">Подтвердить выдачу OP</string>

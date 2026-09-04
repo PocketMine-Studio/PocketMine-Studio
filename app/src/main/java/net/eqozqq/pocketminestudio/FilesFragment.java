@@ -1,6 +1,5 @@
 package net.eqozqq.pocketminestudio;
 
-import android.content.DialogInterface;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -11,9 +10,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,7 +23,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -123,20 +119,28 @@ public class FilesFragment extends Fragment {
 
         
         view.findViewById(R.id.addButton).setOnClickListener(v -> {
-            String[] actions = {getString(R.string.action_upload_file), getString(R.string.action_create_folder), getString(R.string.action_create_file)};
-            new MaterialAlertDialogBuilder(requireActivity())
+            View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_file, null);
+            androidx.appcompat.app.AlertDialog dialog = new MaterialAlertDialogBuilder(requireActivity())
                 .setTitle(getString(R.string.action_add))
-                .setItems(actions, (dialog, which) -> {
-                    if (which == 0) {
-                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                        intent.setType("*/*");
-                        startActivityForResult(intent, REQUEST_UPLOAD);
-                    } else if (which == 1) {
-                        showCreateDialog(true);
-                    } else if (which == 2) {
-                        showCreateDialog(false);
-                    }
-                }).show();
+                .setView(dialogView)
+                .create();
+
+            dialogView.findViewById(R.id.btn_add_upload).setOnClickListener(btnView -> {
+                dialog.dismiss();
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("*/*");
+                startActivityForResult(intent, REQUEST_UPLOAD);
+            });
+            dialogView.findViewById(R.id.btn_add_folder).setOnClickListener(btnView -> {
+                dialog.dismiss();
+                showCreateDialog(true);
+            });
+            dialogView.findViewById(R.id.btn_add_file).setOnClickListener(btnView -> {
+                dialog.dismiss();
+                showCreateDialog(false);
+            });
+
+            dialog.show();
         });
 
         loadDirectory();
@@ -256,7 +260,7 @@ public class FilesFragment extends Fragment {
                 icon.setImageResource(R.drawable.ic_check_small_24px);
                 item.setBackgroundResource(R.drawable.bg_rounded_selected); // Use rounded background for selected items
             } else {
-                icon.setImageResource(file.isDirectory() ? R.drawable.ic_folder_24px : R.drawable.ic_description_24px);
+                icon.setImageResource(file.isDirectory() ? R.drawable.ic_folder_24px : R.drawable.ic_draft_24px);
                 item.setBackgroundResource(R.drawable.bg_rounded);
             }
             android.widget.LinearLayout.LayoutParams iconParams = new android.widget.LinearLayout.LayoutParams(
@@ -339,42 +343,131 @@ public class FilesFragment extends Fragment {
     }
 
     private void showFileMenu(File file) {
-        String selectAction = selectedFiles.contains(file) ? getString(R.string.action_unselect) : getString(R.string.action_select);
-        String[] actions = { getString(R.string.action_copy), getString(R.string.auto_text_delete), getString(R.string.action_rename), getString(R.string.action_permissions), getString(R.string.auto_text_archive), selectAction };
-        new MaterialAlertDialogBuilder(requireActivity())
-                .setTitle(file.getName())
-                .setItems(actions, (dialog, which) -> {
-                    if (which == 0) {
-                        clipboardFiles.clear();
-                        clipboardFiles.add(file);
-                        Toast.makeText(requireActivity(), getString(R.string.msg_console_copied), Toast.LENGTH_SHORT).show();
-                        loadDirectory();
-                    } else if (which == 1) {
-                        new MaterialAlertDialogBuilder(requireActivity())
-                                .setTitle(getString(R.string.dialog_delete_confirmation))
-                                .setMessage(getString(R.string.dialog_delete_item_message, file.getName()))
-                                .setPositiveButton(getString(R.string.auto_text_delete), (d, w) -> {
-                                    deleteRecursive(file);
-                                    selectedFiles.remove(file);
-                                    loadDirectory();
-                                })
-                                .setNegativeButton(getString(R.string.config_cancel), null)
-                                .show();
-                    } else if (which == 2) {
-                        showRenameDialog(file);
-                    } else if (which == 3) {
-                        showPermissionsDialog(file);
-                    } else if (which == 4) {
-                        showArchiveDialog(file);
-                    } else if (which == 5) {
-                        if (selectedFiles.contains(file)) {
+        View dialogView = LayoutInflater.from(requireActivity()).inflate(R.layout.dialog_file_edit, null);
+        TextView tvFileName = dialogView.findViewById(R.id.toolbar_file_name);
+        if (tvFileName != null) {
+            tvFileName.setText(file.getName());
+        }
+
+        android.app.Dialog dialog = new android.app.Dialog(requireActivity());
+        dialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
+        dialog.setContentView(dialogView);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+            dialog.getWindow().setGravity(android.view.Gravity.BOTTOM | android.view.Gravity.CENTER_HORIZONTAL);
+            android.view.WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
+            params.y = (int) (80 * requireActivity().getResources().getDisplayMetrics().density);
+            dialog.getWindow().setAttributes(params);
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            dialog.getWindow().setWindowAnimations(android.R.style.Animation_Dialog);
+        }
+
+        View.OnLongClickListener tooltipListener = v -> {
+            CharSequence desc = v.getContentDescription();
+            if (desc != null && desc.length() > 0) {
+                Toast.makeText(requireActivity(), desc, Toast.LENGTH_SHORT).show();
+            }
+            return true;
+        };
+
+        View btnCopy = dialogView.findViewById(R.id.btn_action_copy);
+        View btnRename = dialogView.findViewById(R.id.btn_action_rename);
+        View btnPermissions = dialogView.findViewById(R.id.btn_action_permissions);
+        View btnArchive = dialogView.findViewById(R.id.btn_action_archive);
+        View btnDownload = dialogView.findViewById(R.id.btn_action_download);
+        View btnSelect = dialogView.findViewById(R.id.btn_action_select);
+        View btnDelete = dialogView.findViewById(R.id.btn_action_delete);
+
+        View[] buttons = {btnCopy, btnRename, btnPermissions, btnArchive, btnDownload, btnSelect, btnDelete};
+        for (View btn : buttons) {
+            if (btn != null) btn.setOnLongClickListener(tooltipListener);
+        }
+
+        if (btnCopy != null) {
+            btnCopy.setOnClickListener(v -> {
+                dialog.dismiss();
+                clipboardFiles.clear();
+                clipboardFiles.add(file);
+                Toast.makeText(requireActivity(), getString(R.string.msg_file_copied), Toast.LENGTH_SHORT).show();
+                loadDirectory();
+            });
+        }
+        if (btnRename != null) {
+            btnRename.setOnClickListener(v -> {
+                dialog.dismiss();
+                showRenameDialog(file);
+            });
+        }
+        if (btnPermissions != null) {
+            btnPermissions.setOnClickListener(v -> {
+                dialog.dismiss();
+                showPermissionsDialog(file);
+            });
+        }
+        if (btnArchive != null) {
+            btnArchive.setOnClickListener(v -> {
+                dialog.dismiss();
+                showArchiveDialog(file);
+            });
+        }
+        if (btnDownload != null) {
+            btnDownload.setOnClickListener(v -> {
+                dialog.dismiss();
+                saveFileToDownloads(file);
+            });
+        }
+        if (btnSelect != null) {
+            btnSelect.setOnClickListener(v -> {
+                dialog.dismiss();
+                if (selectedFiles.contains(file)) {
+                    selectedFiles.remove(file);
+                } else {
+                    selectedFiles.add(file);
+                }
+                loadDirectory();
+            });
+        }
+        if (btnDelete != null) {
+            btnDelete.setOnClickListener(v -> {
+                dialog.dismiss();
+                new MaterialAlertDialogBuilder(requireActivity())
+                        .setTitle(getString(R.string.dialog_delete_confirmation))
+                        .setMessage(getString(R.string.dialog_delete_item_message, file.getName()))
+                        .setPositiveButton(getString(R.string.auto_text_delete), (d, w) -> {
+                            deleteRecursive(file);
                             selectedFiles.remove(file);
-                        } else {
-                            selectedFiles.add(file);
-                        }
-                        loadDirectory();
-                    }
-                }).show();
+                            loadDirectory();
+                        })
+                        .setNegativeButton(getString(R.string.config_cancel), null)
+                        .show();
+            });
+        }
+
+        dialog.show();
+    }
+
+    private void saveFileToDownloads(File file) {
+        try {
+            File downloadsDir = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS);
+            if (!downloadsDir.exists()) {
+                downloadsDir.mkdirs();
+            }
+            File dest = new File(downloadsDir, file.getName());
+            FileInputStream is = new FileInputStream(file);
+            FileOutputStream os = new FileOutputStream(dest);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = is.read(buffer)) > 0) {
+                os.write(buffer, 0, length);
+            }
+            os.flush();
+            os.close();
+            is.close();
+            Toast.makeText(requireActivity(), String.format(getString(R.string.msg_file_downloaded), file.getName()), Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(requireActivity(), getString(R.string.msg_file_download_failed), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showArchiveDialog(File file) {

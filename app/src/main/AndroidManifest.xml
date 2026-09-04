@@ -51,6 +51,7 @@
         <activity
             android:name="net.eqozqq.pocketminestudio.LogActivity"
             android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateAlwaysHidden"
             android:label="Console" >
         </activity>
         <activity

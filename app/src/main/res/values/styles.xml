@@ -45,13 +45,50 @@
        <item name="android:background">@drawable/bg_dlbutton</item>
    </style>
    
+    <style name="Material3ExpressiveAnimation" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/m3_activity_open_enter</item>
+        <item name="android:activityOpenExitAnimation">@anim/m3_activity_open_exit</item>
+        <item name="android:activityCloseEnterAnimation">@anim/m3_activity_close_enter</item>
+        <item name="android:activityCloseExitAnimation">@anim/m3_activity_close_exit</item>
+    </style>
+
+    <style name="Widget.App.TabLayout.Pill" parent="Widget.Material3.TabLayout">
+        <item name="tabIndicatorHeight">0dp</item>
+        <item name="tabIndicatorColor">@android:color/transparent</item>
+        <item name="tabIndicator">@null</item>
+        <item name="tabBackground">@drawable/tab_pill_selector</item>
+        <item name="tabRippleColor">@android:color/transparent</item>
+        <item name="tabTextColor">?attr/colorOnSurfaceVariant</item>
+        <item name="tabSelectedTextColor">?attr/colorOnPrimaryContainer</item>
+        <item name="tabPaddingStart">24dp</item>
+        <item name="tabPaddingEnd">24dp</item>
+        <item name="tabPaddingTop">12dp</item>
+        <item name="tabPaddingBottom">12dp</item>
+    </style>
+
     <style name="AppTheme" parent="Theme.Material3.DynamicColors.DayNight">
         <item name="android:statusBarColor">?attr/colorSurfaceContainer</item>
         <item name="textInputStyle">@style/Widget.MaterialComponents.TextInputLayout.FilledBox</item>
+        <item name="android:windowAnimationStyle">@style/Material3ExpressiveAnimation</item>
+        <item name="tabStyle">@style/Widget.App.TabLayout.Pill</item>
     </style>
     
     <style name="AppTheme.NoActionBar" parent="AppTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="ShapeAppearance.SplitButton.Left" parent="ShapeAppearance.Material3.Corner.Full">
+        <item name="cornerSizeTopLeft">50%</item>
+        <item name="cornerSizeBottomLeft">50%</item>
+        <item name="cornerSizeTopRight">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
+    <style name="ShapeAppearance.SplitButton.Right" parent="ShapeAppearance.Material3.Corner.Full">
+        <item name="cornerSizeTopLeft">0dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeTopRight">50%</item>
+        <item name="cornerSizeBottomRight">50%</item>
     </style>
 </resources>

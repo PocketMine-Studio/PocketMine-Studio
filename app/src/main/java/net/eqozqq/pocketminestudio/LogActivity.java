@@ -48,6 +48,7 @@ public class LogActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 		setContentView(R.layout.activity_log);
 		
 		androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);

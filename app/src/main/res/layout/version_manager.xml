@@ -1,14 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tab_layout"
+        style="@style/Widget.App.TabLayout.Pill"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true">
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PocketMine-MP" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="BetterAltay" />
+
+    </com.google.android.material.tabs.TabLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/search_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        android:layout_below="@+id/tab_layout"
+        android:layout_marginTop="8dp"
         android:hint="@string/auto_hint_search_versions">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/search_input"
@@ -79,7 +100,7 @@
             android:id="@+id/importCustomCoreBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="24px"
+            android:padding="20sp"
             android:layout_marginBottom="8dp"
             android:text="@string/auto_text_import_custom_core" />
 
