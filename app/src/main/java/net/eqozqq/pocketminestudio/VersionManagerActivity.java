@@ -51,9 +51,19 @@ public class VersionManagerActivity extends BaseActivity {
 		start();
 	}
 
-	public String getPageContext(String url) throws IOException {
-		URLConnection connection = new URL(url).openConnection();
+	public String getPageContext(String urlStr) throws IOException {
+		URL url = new URL(urlStr);
+		java.net.HttpURLConnection connection = (java.net.HttpURLConnection) url.openConnection();
 		connection.setRequestProperty("User-Agent", "PocketMine-Studio");
+		connection.setInstanceFollowRedirects(true);
+		int status = connection.getResponseCode();
+		if (status == java.net.HttpURLConnection.HTTP_MOVED_TEMP || status == java.net.HttpURLConnection.HTTP_MOVED_PERM || status == 307 || status == 308) {
+			String redirectUrl = connection.getHeaderField("Location");
+			if (redirectUrl != null) {
+				connection.disconnect();
+				return getPageContext(redirectUrl);
+			}
+		}
 		BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 		StringBuilder sb = new StringBuilder();
 		String str;
@@ -61,6 +71,7 @@ public class VersionManagerActivity extends BaseActivity {
 			sb.append(str);
 		}
 		in.close();
+		connection.disconnect();
 		return sb.toString();
 	}
 
@@ -180,7 +191,10 @@ public class VersionManagerActivity extends BaseActivity {
 				is.close();
 
 				if (ServerFragment.prefs != null) {
-					ServerFragment.prefs.edit().putString("custom_core_path", destFile.getAbsolutePath()).apply();
+					ServerFragment.prefs.edit()
+							.putString("custom_core_path", destFile.getAbsolutePath())
+							.putString("selected_core", fileName)
+							.apply();
 				}
 
 				showToast(String.format(getString(R.string.msg_custom_phar_imported), fileName));
@@ -218,7 +232,7 @@ public class VersionManagerActivity extends BaseActivity {
 			try {
 				String apiUrl = (tabIndex == 0)
 						? "https://api.github.com/repos/pmmp/pocketmine-mp/releases?per_page=100"
-						: "https://api.github.com/repos/Benedikt05/BetterAltay/releases?per_page=100";
+						: "https://api.github.com/repos/BetterAltayBedrock/BetterAltay/releases?per_page=100";
 				String jsonString = getPageContext(apiUrl);
 				final JSONArray versionsArray = (JSONArray) JSONValue.parse(jsonString);
 
@@ -351,7 +365,10 @@ public class VersionManagerActivity extends BaseActivity {
 			new Thread(() -> {
 				try {
 					if (ServerFragment.prefs != null) {
-						ServerFragment.prefs.edit().remove("custom_core_path").apply();
+						ServerFragment.prefs.edit()
+								.remove("custom_core_path")
+								.putString("selected_core", pharName)
+								.apply();
 					}
 					delete(new File(ServerUtils.getDataDirectory() + "/src/"));
 					delete(new File(ServerUtils.getAppDirectory() + "/php/"));
@@ -516,7 +533,7 @@ public class VersionManagerActivity extends BaseActivity {
 			
 			if (pharUrl.isEmpty()) {
 				if (selectedTab == 1) {
-					pharUrl = "https://github.com/Benedikt05/BetterAltay/releases/download/" + version + "/BetterAltay.phar";
+					pharUrl = "https://github.com/BetterAltayBedrock/BetterAltay/releases/download/" + version + "/BetterAltay.phar";
 				} else {
 					pharUrl = "https://github.com/pmmp/pocketmine-mp/releases/download/" + version + "/PocketMine-MP.phar";
 				}

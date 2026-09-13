@@ -237,6 +237,7 @@ public class LogActivity extends BaseActivity {
 	}
 
 	public static void log(final String whatToLog) {
+		net.eqozqq.pocketminestudio.compose.state.ServerState.INSTANCE.addLog(whatToLog);
 		String stripped = whatToLog.replaceAll("\u001B\\[[;\\d]*m", "").replaceAll("\u001B\\][^\u0007]*\u0007", "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
 		final Spanned result = Html.fromHtml(stripped + "<br/>");
 		currentLog.append(result);

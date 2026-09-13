@@ -564,6 +564,11 @@ public class ServerFragment extends Fragment {
 		upload = nUpload;
 		download = nDownload;
 		tps = nTPS;
+		net.eqozqq.pocketminestudio.compose.state.ServerState.INSTANCE.updateStats(nOnline, nRAM, nUpload, nDownload, nTPS);
+		Context sCtx = ha != null && ha.getActivity() != null ? ha.getActivity() : ServerUtils.getContext();
+		if (sCtx != null && ServerUtils.isServerReady) {
+			ServerService.updateStats(sCtx, nOnline, nTPS, nRAM, nUpload, nDownload);
+		}
 
 		if (ha != null && ha.getActivity() != null) {
 			ha.getActivity().runOnUiThread(new Runnable() {
@@ -583,9 +588,9 @@ public class ServerFragment extends Fragment {
 						float valRam = 0;
 						float valUpload = 0;
 						float valDownload = 0;
-						try { valRam = Float.parseFloat(nRAM.replaceAll("[^0-9\\.]", "")); } catch (Exception e){}
-						try { valUpload = Float.parseFloat(nUpload.replaceAll("[^0-9\\.]", "")); } catch (Exception e){}
-						try { valDownload = Float.parseFloat(nDownload.replaceAll("[^0-9\\.]", "")); } catch (Exception e){}
+						try { valRam = Float.parseFloat(nRAM.split("[ /]")[0].replaceAll("[^0-9\\.]", "")); } catch (Exception e){}
+						try { valUpload = Float.parseFloat(nUpload.split("[ /]")[0].replaceAll("[^0-9\\.]", "")); } catch (Exception e){}
+						try { valDownload = Float.parseFloat(nDownload.split("[ /]")[0].replaceAll("[^0-9\\.]", "")); } catch (Exception e){}
 						
 						updateChart((LineChart) ha.view.findViewById(R.id.graph_ram), entriesRam, valRam);
 						updateChart((LineChart) ha.view.findViewById(R.id.graph_upload), entriesUpload, valUpload);
